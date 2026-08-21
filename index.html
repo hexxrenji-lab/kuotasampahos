@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>SampahKuota OS - Super App Enterprise Architecture</title>
+  <!-- 
+    ================================================================
+    SYSTEM ARCHITECTURE & CONCEPT CREATOR: HAFID DEVELOPMENT
+    PROJECT: SAMPAHKUOTA OS (SUPER-APP ENTERPRISE VERSION)
+    WATERMARK: (C) 2026 HAFID DEVELOPMENT - ALL RIGHTS RESERVED
+    ================================================================
+  -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; }
+    body { background-color: #f1f5f9; padding-bottom: 60px; }
+    
+    .icon { width: 18px; height: 18px; fill: currentColor; display: inline-block; vertical-align: middle; }
+    .icon-lg { width: 24px; height: 24px; }
+    .icon-sm { width: 14px; height: 14px; }
+
+    /* NAV BAR SWITCHER */
+    .nav-bar { background: linear-gradient(135deg, #059669, #0d9488); padding: 12px; color: white; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.15); }
+    .nav-container { max-width: 950px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+    .logo { font-weight: 800; font-size: 16px; display: flex; align-items: center; gap: 6px; }
+    
+    .status-badge { background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.3); padding: 5px 10px; border-radius: 10px; font-size: 11px; font-weight: 700; display: flex; align-items: center; gap: 6px; color: #fef08a; }
+    .btn-login { background: #f59e0b; color: #0f172a; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+    
+    .role-switcher { display: flex; gap: 4px; background: rgba(0,0,0,0.2); padding: 3px; border-radius: 10px; margin-top: 5px; width: 100%; overflow-x: auto; }
+    .btn-role { flex: 1; min-width: 70px; border: none; padding: 6px 4px; border-radius: 6px; font-weight: 700; font-size: 11px; cursor: pointer; color: white; background: transparent; text-align: center; white-space: nowrap; }
+    .btn-role.active { background-color: white; color: #0f172a; }
+
+    /* LAYOUT CONTAINERS */
+    .container { max-width: 480px; margin: 15px auto; padding: 0 15px; }
+    .container-wide { max-width: 950px; margin: 15px auto; padding: 0 15px; }
+    .hidden { display: none !important; }
+
+    /* CARDS & COMPONENTS */
+    .card-user { background: linear-gradient(135deg, #10b981, #0ea5e9); border-radius: 20px; padding: 18px; color: white; box-shadow: 0 8px 16px rgba(16,185,129,0.2); }
+    .user-header { display: flex; justify-content: space-between; align-items: center; }
+    .avatar { width: 42px; height: 42px; background: rgba(255,255,255,0.25); border-radius: 12px; display: flex; align-items: center; justify-content: center; color: white; }
+    .badge { background: #f59e0b; color: #0f172a; font-size: 10px; font-weight: 800; padding: 3px 8px; border-radius: 20px; text-transform: uppercase; }
+    
+    .points-box { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 10px 12px; margin-top: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .points-val { font-size: 24px; font-weight: 900; color: #fef08a; transition: all 0.5s ease; }
+
+    .card-white { background: white; border-radius: 18px; padding: 16px; margin-top: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.04); border: 1px solid #e2e8f0; }
+    .qr-box { text-align: center; }
+    .qr-title { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 4px; }
+    #qrcode { display: flex; justify-content: center; margin: 8px 0; }
+
+    /* MODAL FORM LOGIN GOV */
+    .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.75); display: flex; justify-content: center; align-items: center; z-index: 200; }
+    .modal-card { background: white; width: 92%; max-width: 420px; padding: 20px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; }
+    .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; }
+
+    /* STATUS TERKUNCI / TERBUKA */
+    .locked-card { opacity: 0.5; pointer-events: none; filter: grayscale(0.8); transition: 0.3s; }
+    .unlocked-card { opacity: 1 !important; pointer-events: auto !important; filter: none !important; border-color: #10b981 !important; }
+
+    .btn-scan-sim { background: #0ea5e9; color: white; border: none; padding: 10px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; margin-top: 6px; width: 100%; display: flex; align-items: center; justify-content: center; gap: 5px; }
+
+    /* FORM INPUT & REWARDS */
+    .flex-inputs { display: flex; gap: 6px; flex-wrap: wrap; }
+    .input-text { flex: 2; min-width: 140px; padding: 9px; border-radius: 8px; border: 1px solid #cbd5e1; font-weight: 700; font-size: 12px; color: #334155; }
+    .select-box { flex: 1; min-width: 90px; padding: 9px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 700; font-size: 12px; color: #334155; }
+    .btn-submit-green { width: 100%; margin-top: 8px; background: #059669; color: white; border: none; padding: 10px; border-radius: 8px; font-weight: 800; font-size: 12px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 6px; }
+    
+    .reward-item { display: flex; justify-content: space-between; align-items: center; padding: 10px; border-radius: 12px; border: 1px solid #e2e8f0; margin-top: 8px; background: #fff; }
+    .reward-icon { width: 34px; height: 34px; border-radius: 8px; display: flex; align-items: center; justify-content: center; }
+    .icon-wifi-bg { background: #e0f2fe; color: #0284c7; }
+    .icon-data-bg { background: #d1fae5; color: #059669; }
+    .icon-sedekah-bg { background: #fef3c7; color: #d97706; }
+    .btn-tukar { background: #059669; color: white; border: none; padding: 6px 12px; border-radius: 8px; font-weight: 800; font-size: 11px; cursor: pointer; }
+    .btn-tukar-blue { background: #0284c7; }
+    .btn-tukar-amber { background: #d97706; }
+
+    /* DASHBOARD GRID ADMIN & TABLE */
+    .grid-4 { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 12px; }
+    .stat-card { background: white; padding: 14px; border-radius: 14px; border: 1px solid #e2e8f0; }
+    .stat-val { font-size: 20px; font-weight: 900; margin-top: 2px; }
+    .table-responsive { overflow-x: auto; max-height: 350px; overflow-y: auto; margin-top: 10px; border-radius: 8px; border: 1px solid #e2e8f0; }
+    .table-queue { width: 100%; border-collapse: collapse; font-size: 11px; }
+    .table-queue th, .table-queue td { padding: 8px 12px; border: 1px solid #e2e8f0; text-align: left; }
+    .table-queue th { background: #f8fafc; font-weight: 800; position: sticky; top: 0; z-index: 10; }
+    .btn-acc { background: #059669; color: white; border: none; padding: 4px 8px; border-radius: 6px; font-weight: 800; font-size: 10px; cursor: pointer; }
+
+    .wm-footer { text-align: center; margin-top: 30px; padding: 15px; font-size: 11px; color: #64748b; border-top: 1px dashed #cbd5e1; }
+    .wm-footer strong { color: #059669; }
+  </style>
+</head>
+<body>
+
+  <!-- TOP NAV -->
+  <div class="nav-bar">
+    <div class="nav-container">
+      <div class="logo">
+        <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg>
+        SampahKuota OS
+      </div>
+
+      <!-- STATUS LOGIN -->
+      <div class="status-badge">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
+        Status: <span id="txt-status-login" style="color:#4ade80">Terverifikasi (KTP)</span>
+      </div>
+
+      <!-- FITUR LOGIN / LOGOUT USER -->
+      <button onclick="openModalLogin()" id="btn-user-action" class="btn-login">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
+        <span id="txt-btn-login">Ubah Profil / NIK</span>
+      </button>
+
+      <!-- SWITCHER ROLE 4 LEVEL -->
+      <div class="role-switcher">
+        <button onclick="switchRole('warga')" id="btn-warga" class="btn-role active">1. Warga</button>
+        <button onclick="switchRole('rtrw')" id="btn-rtrw" class="btn-role">2. RT/RW</button>
+        <button onclick="switchRole('kuwu')" id="btn-kuwu" class="btn-role">3. Kuwu</button>
+        <button onclick="switchRole('bupati')" id="btn-bupati" class="btn-role">4. Bupati</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LOGIN VERIFIKASI DUKCAPIL / NIK -->
+  <div id="modal-login" class="modal-overlay hidden">
+    <div class="modal-card">
+      <h3 style="font-size: 14px; color: #0f172a; margin-bottom: 4px;">🏛️ Otentikasi Warga (Satu Data KTP/KK)</h3>
+      <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">Masukkan NIK dan No. KK resmi untuk sinkronisasi data wilayah RT/RW.</p>
+      
+      <div class="form-group">
+        <label>NAMA LENGKAP (SESUAI KTP)</label>
+        <input type="text" id="login-nama" class="form-control" placeholder="Contoh: Ahmad Fauzi" value="Ahmad Fauzi">
+      </div>
+      <div class="form-group">
+        <label>NOMOR INDUK KEPENDUDUKAN (16 DIGIT NIK)</label>
+        <input type="number" id="login-nik" class="form-control" placeholder="3209..." value="3209121508050001">
+      </div>
+      <div class="form-group">
+        <label>NOMOR KARTU KELUARGA (16 DIGIT NO. KK)</label>
+        <input type="number" id="login-kk" class="form-control" placeholder="3209..." value="3209120101100005">
+      </div>
+      <div style="display: flex; gap: 6px; margin-top: 10px;">
+        <div class="form-group" style="flex:1;">
+          <label>RT</label>
+          <input type="text" id="login-rt" class="form-control" value="002">
+        </div>
+        <div class="form-group" style="flex:1;">
+          <label>RW</label>
+          <input type="text" id="login-rw" class="form-control" value="001">
+        </div>
+      </div>
+      <div class="form-group">
+        <label>DESA / KELURAHAN</label>
+        <input type="text" id="login-desa" class="form-control" value="Desa Megu Gede">
+      </div>
+
+      <div style="display: flex; gap: 8px; margin-top: 14px;">
+        <button onclick="closeModalLogin()" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 700; font-size: 11px; cursor: pointer;">Batal</button>
+        <button onclick="prosesLoginDukcapil()" style="flex:2; padding: 8px; border-radius: 8px; border: none; background: #059669; color: white; font-weight: 800; font-size: 11px; cursor: pointer;">Verifikasi Data KTP</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 1. WARGA VIEW ==================== -->
+  <div id="view-warga" class="container">
+    <div class="card-user">
+      <div class="user-header">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="avatar">
+            <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          </div>
+          <div>
+            <h3 id="profile-name" style="font-size: 14px;">Ahmad Fauzi</h3>
+            <p id="profile-alamat" style="font-size: 10px; opacity: 0.9;">RT 002 / RW 001 - Desa Megu Gede</p>
+            <p id="profile-nik" style="font-size: 9px; opacity: 0.85; font-family: monospace;">NIK: 3209121508050001</p>
+          </div>
+        </div>
+        <span class="badge">Terverifikasi</span>
+      </div>
+
+      <!-- POINT SALDO DIHITUNG REAL-TIME -->
+      <div class="points-box">
+        <div>
+          <span style="font-size: 10px; opacity: 0.9;">Total Poin Sampah Realita</span>
+          <div class="points-val"><span id="txt-poin">0</span> <span style="font-size: 11px; color: white;">PTS</span></div>
+        </div>
+        <span style="background: rgba(255,255,255,0.2); padding: 5px 10px; border-radius: 6px; font-size: 10px; font-weight: bold;">
+          ⚡ <span id="txt-estimasi-kuota">0 GB</span> Kuota
+        </span>
+      </div>
+    </div>
+
+    <!-- UTAMA: SCAN QR & TIMBANG SAMPAH REALITA DENGAN PILIHAN JENIS -->
+    <div class="card-white qr-box">
+      <div class="qr-title">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm13-2h3v2h-3zm-3 2h2v3h-2zm3 3h3v3h-3zm-3 1h2v2h-2z"/></svg>
+        SCAN QR ID INI DI MESIN SAMPAH
+      </div>
+      <div id="qrcode"></div>
+      <span id="txt-qr-id" style="font-size: 10px; color: #94a3b8; font-family: monospace;">ID: NIK-3209121508050001</span>
+      
+      <!-- Pilihan Jenis Sampah -->
+      <div style="margin-top: 10px; text-align: left;">
+        <label style="font-size: 10px; font-weight: bold; color: #475569;">Pilih Jenis Sampah:</label>
+        <select id="select-jenis-sampah" style="width: 100%; padding: 6px; border-radius: 6px; border: 1px solid #cbd5e1; font-size: 11px; margin-top: 2px;">
+          <option value="plastik">Plastik Botol / Gelas (1.000 PTS / Kg)</option>
+          <option value="kertas">Kertas / Kardus Bekas (800 PTS / Kg)</option>
+          <option value="logam">Logam / Kaleng / Besi (2.000 PTS / Kg)</option>
+        </select>
+      </div>
+
+      <!-- Tombol Simulasi Penimbangan Realita -->
+      <button onclick="simulasiScanDanTimbang()" id="btn-scan" class="btn-scan-sim">
+        <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+        [Simulasi] Masukkan Sampah & Timbang di Mesin
+      </button>
+    </div>
+
+    <!-- AREA HIJAU: BARU TERBUKA SETELAH TIMBANG SAMPAH REALITA -->
+    <div id="card-hijau" class="card-white locked-card">
+      <span class="label" style="color: #059669; font-size: 11px; font-weight: bold;">
+        Input Provider & Nomor Tujuan (Kirim Admin)
+      </span>
+      <div class="flex-inputs" style="margin-top:6px;">
+        <input type="text" id="input-nohp" placeholder="Ketik No. HP Kamu..." value="0812-3456-7890" class="input-text">
+        <select id="select-provider" class="select-box">
+          <option value="Telkomsel">Telkomsel</option>
+          <option value="Indosat">Indosat</option>
+          <option value="XL Axiata">XL Axiata</option>
+          <option value="Wi-Fi Desa">Wi-Fi Desa</option>
+        </select>
+      </div>
+      <button onclick="submitNomor()" class="btn-submit-green">
+        Submit Nomor ke Admin
+      </button>
+    </div>
+
+    <!-- AREA BIRU & AMBER: PENUKARAN KUOTA & SEDEKAH -->
+    <div id="card-biru" class="locked-card" style="margin-top: 12px;">
+      <span class="label" style="color: #0284c7; font-size: 11px; font-weight: bold;">
+        Pilih Opsi Penukaran Poin
+      </span>
+      
+      <!-- Opsi Kuota -->
+      <div class="reward-item" style="border: 1px solid #38bdf8;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="reward-icon icon-data-bg">📱</div>
+          <div>
+            <h5 style="font-size: 11px; font-weight: 800;">Opsi Paket Kuota</h5>
+            <select id="select-gb" style="font-size: 10px; padding: 2px; border-radius: 4px;">
+              <option value="1 GB">1 GB (1.000 PTS)</option>
+              <option value="3 GB">3 GB (3.000 PTS)</option>
+              <option value="5 GB">5 GB (5.000 PTS)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="tukarKuota()" class="btn-tukar">Proses Kuota</button>
+      </div>
+
+      <!-- Opsi Wi-Fi -->
+      <div class="reward-item" style="border: 1px solid #38bdf8;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="reward-icon icon-wifi-bg">📶</div>
+          <div>
+            <h5 style="font-size: 11px; font-weight: 800;">Opsi Kecepatan Wi-Fi</h5>
+            <select id="select-mbps" style="font-size: 10px; padding: 2px; border-radius: 4px;">
+              <option value="5 Mbps">5 Mbps (500 PTS)</option>
+              <option value="10 Mbps">10 Mbps (1.000 PTS)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="tukarWifi()" class="btn-tukar btn-tukar-blue">Proses Wi-Fi</button>
+      </div>
+
+      <!-- Opsi Sedekah / Kas RT (Fitur Baru) -->
+      <div class="reward-item" style="border: 1px solid #fcd34d;">
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div class="reward-icon icon-sedekah-bg">🕌</div>
+          <div>
+            <h5 style="font-size: 11px; font-weight: 800;">Sedekah Sampah / Kas RT</h5>
+            <select id="select-sedekah" style="font-size: 10px; padding: 2px; border-radius: 4px;">
+              <option value="500 PTS">Donasi Rp 5.000 (500 PTS)</option>
+              <option value="1000 PTS">Donasi Rp 10.000 (1.000 PTS)</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="donasiSedekah()" class="btn-tukar btn-tukar-amber">Donasikan</button>
+      </div>
+    </div>
+
+    <!-- LOG RIWAYAT TRANSAKSI WARGA (Fitur Baru) -->
+    <div class="card-white">
+      <h4 style="font-size: 11px; color: #334155; margin-bottom: 6px;">📋 Riwayat Aktivitas Penimbangan Saya</h4>
+      <div class="table-responsive">
+        <table class="table-queue">
+          <thead>
+            <tr>
+              <th>Waktu</th>
+              <th>Jenis</th>
+              <th>Berat</th>
+              <th>Poin</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-riwayat-warga">
+            <tr><td colspan="4" style="text-align:center; color:#94a3b8;">Belum ada riwayat transaksi.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 2. RT/RW VIEW (FITUR BARU) ==================== -->
+  <div id="view-rtrw" class="container-wide hidden">
+    <div class="card-white" style="background: linear-gradient(135deg, #0f766e, #0d9488); color: white;">
+      <h2 style="font-size: 18px;">🏡 Dashboard Posko RT 002 / RW 001</h2>
+      <p style="font-size: 11px; opacity: 0.8;">Monitoring Partisipasi Warga & Kas Sedekah Sampah RT</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">KAS SEDEKAH RT</span>
+        <div class="stat-val" style="color: #d97706;">Rp <span id="txt-kas-rt">0</span></div>
+      </div>
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">TOTAL WARGA AKTIF</span>
+        <div class="stat-val" style="color: #0284c7;"><span id="txt-warga-aktif">0</span> Orang</div>
+      </div>
+    </div>
+
+    <!-- Leaderboard Warga Ter-Rajin -->
+    <div class="card-white">
+      <h4 style="font-size: 12px; color: #334155;">🏆 Leaderboard Warga Pengumpul Sampah Terbanyak</h4>
+      <div class="table-responsive">
+        <table class="table-queue">
+          <thead>
+            <tr>
+              <th>Peringkat</th>
+              <th>Nama Warga</th>
+              <th>NIK</th>
+              <th>Total Sampah</th>
+              <th>Total Poin</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-leaderboard">
+            <tr><td colspan="5" style="text-align:center; color:#94a3b8;">Belum ada data warga menimbang.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 3. KUWU VIEW ==================== -->
+  <div id="view-kuwu" class="container-wide hidden">
+    <div class="card-white" style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: white;">
+      <h2 style="font-size: 18px;">🏛️ Dashboard Operator Kuwu (Tingkat Desa)</h2>
+      <p style="font-size: 11px; opacity: 0.8;">Rekapitulasi Pengajuan Warga Terintegrasi NIK & RT/RW</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">TOTAL SAMPAH DESA</span>
+        <div class="stat-val" style="color: #059669;"><span id="txt-total-sampah-desa">0.0</span> Kg</div>
+      </div>
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">TOTAL PENGAJUAN</span>
+        <div class="stat-val" style="color: #0284c7;"><span id="txt-jumlah-antrean">0</span></div>
+      </div>
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">PENDING</span>
+        <div class="stat-val" style="color: #d97706;"><span id="txt-pending-count">0</span></div>
+      </div>
+      <div class="stat-card">
+        <span style="font-size: 10px; font-weight: 800; color: #64748b;">ESTIMASI TIANG FIBER</span>
+        <div class="stat-val" style="color: #7c3aed;"><span id="txt-tiang-desa">0</span> Tiang</div>
+      </div>
+    </div>
+
+    <div class="card-white">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <h4 style="font-size: 12px; color: #334155;">Antrean Pengajuan Kuota Real-Time</h4>
+        <button onclick="cetakLaporanKuwu()" style="padding: 4px 8px; border-radius: 6px; background: #0284c7; color: white; border: none; font-size: 10px; font-weight: bold; cursor: pointer;">🖨️ Cetak Laporan Desa</button>
+      </div>
+      <div class="table-responsive">
+        <table class="table-queue">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Waktu</th>
+              <th>NIK / KK</th>
+              <th>Nama & Alamat Warga</th>
+              <th>No. HP / Provider</th>
+              <th>Sampah / Poin</th>
+              <th>Paket</th>
+              <th>Aksi Operator</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-antrean">
+            <tr><td colspan="8" style="text-align: center; color: #94a3b8;">Belum ada antrean masuk.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ==================== 4. BUPATI VIEW ==================== -->
+  <div id="view-bupati" class="container-wide hidden">
+    <div class="card-white" style="background: #0f172a; color: white;">
+      <h2 style="font-size: 18px;">👑 Command Center Smart Eco-Kabupaten</h2>
+      <p style="font-size: 11px; color: #94a3b8;">Monitoring Makro Seluruh Pengajuan NIK Warga & Sampah Kabupaten</p>
+    </div>
+
+    <div class="grid-4">
+      <div class="stat-card" style="background: #ecfdf5; border-color: #a7f3d0;">
+        <span style="font-size: 10px; font-weight: 800; color: #047857;">TOTAL REDUKSI SAMPAH</span>
+        <div class="stat-val" style="color: #059669;"><span id="txt-kabupaten-sampah">0.0</span> Kg</div>
+      </div>
+      <div class="stat-card" style="background: #e0f2fe; border-color: #bae6fd;">
+        <span style="font-size: 10px; font-weight: 800; color: #0369a1;">TOTAL TRANSAKSI</span>
+        <div class="stat-val" style="color: #0284c7;"><span id="txt-kabupaten-transaksi">0</span></div>
+      </div>
+      <div class="stat-card" style="background: #f0f9ff; border-color: #bae6fd;">
+        <span style="font-size: 10px; font-weight: 800; color: #0369a1;">PRODUKSI TIANG FIBER</span>
+        <div class="stat-val" style="color: #0284c7;"><span id="txt-kabupaten-tiang">0</span> Tiang</div>
+      </div>
+      <div class="stat-card" style="background: #f3e8ff; border-color: #e9d5ff;">
+        <span style="font-size: 10px; font-weight: 800; color: #6b21a8;">EFISIENSI ANGGARAN</span>
+        <div class="stat-val" style="color: #7c3aed;">Rp <span id="txt-kabupaten-efisiensi">0</span> K</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- WATERMARK FOOTER DISPLAY -->
+  <div class="wm-footer">
+    Designed & Developed by <strong>Ahmad Fauzi</strong> &copy; 2026<br>
+    <em>Smart Eco-Village System Architecture - TKJ Innovation Project</em>
+  </div>
+
+  <!-- JAVASCRIPT INTEGRATION SYSTEM -->
+  <script>
+    let isLoggedIn = true;
+    let isScanned = false;
+    let isSubmitted = false;
+    
+    let userProfile = {
+      nama: "Ahmad Fauzi",
+      nik: "3209121508050001",
+      kk: "3209120101100005",
+      rt: "002",
+      rw: "001",
+      desa: "Desa Megu Gede"
+    };
+
+    let totalPoin = 0;
+    let totalSampahWarga = 0;
+    let kasRtRupiah = 0;
+    
+    let totalSampahDesa = 0.0;
+    let totalSampahKabupaten = 0.0;
+    
+    let listAntrean = [];
+    let riwayatWarga = [];
+
+    let qrcodeObj = new QRCode(document.getElementById("qrcode"), {
+      text: "NIK-" + userProfile.nik,
+      width: 90,
+      height: 90
+    });
+
+    function openModalLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
+    function closeModalLogin() { document.getElementById('modal-login').classList.add('hidden'); }
+
+    function prosesLoginDukcapil() {
+      let nama = document.getElementById('login-nama').value;
+      let nik = document.getElementById('login-nik').value;
+      let kk = document.getElementById('login-kk').value;
+      let rt = document.getElementById('login-rt').value;
+      let rw = document.getElementById('login-rw').value;
+      let desa = document.getElementById('login-desa').value;
+
+      if(!nama || !nik || !kk) { alert("Nama Lengkap, NIK, dan No. KK Wajib Diisi!"); return; }
+      if(nik.length !== 16) { alert("Gagal: NIK Harus Berjumlah Tepat 16 Digit Angka!"); return; }
+
+      userProfile = { nama, nik, kk, rt, rw, desa };
+
+      document.getElementById('profile-name').innerText = userProfile.nama;
+      document.getElementById('profile-alamat').innerText = "RT " + userProfile.rt + " / RW " + userProfile.rw + " - " + userProfile.desa;
+      document.getElementById('profile-nik').innerText = "NIK: " + userProfile.nik;
+      document.getElementById('txt-qr-id').innerText = "ID: NIK-" + userProfile.nik;
+
+      qrcodeObj.clear();
+      qrcodeObj.makeCode("NIK-" + userProfile.nik);
+
+      closeModalLogin();
+      alert("VERIFIKASI SUCCESS!\nSistem menyinkronkan data NIK warga: " + userProfile.nama);
+    }
+
+    function simulasiScanDanTimbang() {
+      let jenis = document.getElementById('select-jenis-sampah').value;
+      let multiplier = jenis === 'logam' ? 2000 : (jenis === 'kertas' ? 800 : 1000);
+      
+      let beratKg = prompt("SENSOR MESIN: Masukkan berat sampah (" + jenis.toUpperCase() + ") dalam Kg:", "2.5");
+      
+      if(beratKg !== null && beratKg > 0) {
+        let berat = parseFloat(beratKg);
+        let poinBaru = Math.round(berat * multiplier);
+        
+        totalPoin += poinBaru;
+        totalSampahWarga += berat;
+        isScanned = true;
+
+        document.getElementById('txt-poin').innerText = totalPoin.toLocaleString('id-ID');
+        document.getElementById('txt-estimasi-kuota').innerText = (totalPoin / 1000).toFixed(1) + " GB";
+
+        document.getElementById('card-hijau').classList.add('unlocked-card');
+        document.getElementById('btn-scan').style.background = "#059669";
+        document.getElementById('btn-scan').innerHTML = "✓ " + berat + " Kg (" + jenis + ") Terbaca (+ " + poinBaru + " PTS)";
+
+        totalSampahDesa += berat;
+        totalSampahKabupaten += berat;
+        
+        // Catat Riwayat Warga
+        let timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+        riwayatWarga.push({ waktu: timeNow, jenis: jenis, berat: berat + " Kg", poin: "+" + poinBaru });
+        renderRiwayatWarga();
+
+        updateKuwuDanBupati();
+        renderLeaderboardRT();
+
+        alert("BERHASIL!\n\nBerat: " + berat + " Kg\nJenis: " + jenis + "\nPoin: +" + poinBaru + " PTS");
+      }
+    }
+
+    function renderRiwayatWarga() {
+      let tbody = document.getElementById('tbody-riwayat-warga');
+      let html = "";
+      riwayatWarga.forEach(i => {
+        html += `<tr><td>${i.waktu}</td><td>${i.jenis}</td><td>${i.berat}</td><td style="color:#059669; font-weight:bold;">${i.poin}</td></tr>`;
+      });
+      tbody.innerHTML = html;
+    }
+
+    function submitNomor() {
+      if(!isScanned) { alert("Kamu HARUS menimbang sampah di mesin terlebih dahulu!"); return; }
+
+      let nohp = document.getElementById('input-nohp').value;
+      let provider = document.getElementById('select-provider').value;
+      if(!nohp) { alert("Nomor HP tidak boleh kosong!"); return; }
+
+      isSubmitted = true;
+      document.getElementById('card-biru').classList.add('unlocked-card');
+
+      let timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+
+      let itemAntrean = {
+        id: Date.now(),
+        waktu: timeNow,
+        nik: userProfile.nik,
+        kk: userProfile.kk,
+        warga: userProfile.nama,
+        alamat: "RT " + userProfile.rt + "/RW " + userProfile.rw + " (" + userProfile.desa + ")",
+        nohp: nohp + " (" + provider + ")",
+        sampah: totalSampahWarga + " Kg (" + totalPoin + " PTS)",
+        paket: "Belum Memilih Paket",
+        status: "Menunggu Acc"
+      };
+
+      listAntrean.push(itemAntrean);
+      renderAntreanKuwu();
+
+      alert("Nomor " + nohp + " disubmit ke Dashboard Kuwu!");
+    }
+
+    function tukarKuota() {
+      if(!isSubmitted) { alert("Harap Submit Nomor di kotak hijau terlebih dahulu!"); return; }
+      let gb = document.getElementById('select-gb').value;
+      if(listAntrean.length > 0) {
+        listAntrean[listAntrean.length - 1].paket = "Kuota " + gb;
+        renderAntreanKuwu();
+      }
+      alert("Proses Penukaran Kuota " + gb + " Terkirim!");
+    }
+
+    function tukarWifi() {
+      if(!isSubmitted) { alert("Harap Submit Nomor di kotak hijau terlebih dahulu!"); return; }
+      let mbps = document.getElementById('select-mbps').value;
+      if(listAntrean.length > 0) {
+        listAntrean[listAntrean.length - 1].paket = "Wi-Fi " + mbps;
+        renderAntreanKuwu();
+      }
+      alert("Proses Penukaran Wi-Fi " + mbps + " Terkirim!");
+    }
+
+    function donasiSedekah() {
+      let val = document.getElementById('select-sedekah').value;
+      let pts = val === '500 PTS' ? 500 : 1000;
+      let rp = val === '500 PTS' ? 5000 : 10000;
+
+      if(totalPoin < pts) {
+        alert("Poin kamu tidak cukup untuk melakukan sedekah ini!");
+        return;
+      }
+
+      totalPoin -= pts;
+      kasRtRupiah += rp;
+
+      document.getElementById('txt-poin').innerText = totalPoin.toLocaleString('id-ID');
+      document.getElementById('txt-kas-rt').innerText = kasRtRupiah.toLocaleString('id-ID');
+
+      alert("ALHAMDULILLAH!\nSedekah sebesar Rp " + rp.toLocaleString('id-ID') + " berhasil disalurkan ke Kas RT.");
+    }
+
+    function renderLeaderboardRT() {
+      document.getElementById('txt-warga-aktif').innerText = "1";
+      let tbody = document.getElementById('tbody-leaderboard');
+      tbody.innerHTML = `<tr>
+        <td><b>#1</b></td>
+        <td><b>${userProfile.nama}</b></td>
+        <td>${userProfile.nik}</td>
+        <td>${totalSampahWarga} Kg</td>
+        <td><span style="color:#059669; font-weight:bold;">${totalPoin} PTS</span></td>
+      </tr>`;
+    }
+
+    function updateKuwuDanBupati() {
+      document.getElementById('txt-total-sampah-desa').innerText = totalSampahDesa.toFixed(1);
+      document.getElementById('txt-tiang-desa').innerText = Math.floor(totalSampahDesa / 5);
+
+      document.getElementById('txt-kabupaten-sampah').innerText = totalSampahKabupaten.toFixed(1);
+      document.getElementById('txt-kabupaten-tiang').innerText = Math.floor(totalSampahKabupaten / 5);
+      document.getElementById('txt-kabupaten-efisiensi').innerText = Math.floor(totalSampahKabupaten * 10);
+      document.getElementById('txt-kabupaten-transaksi').innerText = listAntrean.length;
+    }
+
+    function renderAntreanKuwu() {
+      document.getElementById('txt-jumlah-antrean').innerText = listAntrean.length;
+      let pendingCount = listAntrean.filter(i => i.status === "Menunggu Acc").length;
+      document.getElementById('txt-pending-count').innerText = pendingCount;
+
+      let tbody = document.getElementById('tbody-antrean');
+      if(listAntrean.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; color: #94a3b8;">Belum ada antrean masuk.</td></tr>';
+        return;
+      }
+
+      let html = "";
+      listAntrean.forEach((item, index) => {
+        html += `<tr>
+          <td><b>${index + 1}</b></td>
+          <td style="color:#64748b;">${item.waktu}</td>
+          <td><span style="font-family:monospace; font-weight:bold; color:#0f172a;">${item.nik}</span></td>
+          <td><b>${item.warga}</b><br><span style="font-size:10px; color:#059669;">${item.alamat}</span></td>
+          <td>${item.nohp}</td>
+          <td>${item.sampah}</td>
+          <td><span style="color:#0284c7; font-weight:bold;">${item.paket}</span></td>
+          <td>
+            ${item.status === 'Menunggu Acc' 
+              ? `<button onclick="accKuwu(${index})" class="btn-acc">✓ Injeksi Kuota</button>` 
+              : `<span style="color:#059669; font-weight:bold;">✓ Terkirim</span>`}
+          </td>
+        </tr>`;
+      });
+      tbody.innerHTML = html;
+      updateKuwuDanBupati();
+    }
+
+    function accKuwu(index) {
+      listAntrean[index].status = "Selesai";
+      renderAntreanKuwu();
+      alert("INJEKSI BERHASIL!\nInjeksi kuota untuk NIK " + listAntrean[index].nik + " diproses.");
+    }
+
+    function cetakLaporanKuwu() {
+      window.print();
+    }
+
+    function switchRole(role) {
+      document.getElementById('view-warga').classList.add('hidden');
+      document.getElementById('view-rtrw').classList.add('hidden');
+      document.getElementById('view-kuwu').classList.add('hidden');
+      document.getElementById('view-bupati').classList.add('hidden');
+
+      document.getElementById('btn-warga').classList.remove('active');
+      document.getElementById('btn-rtrw').classList.remove('active');
+      document.getElementById('btn-kuwu').classList.remove('active');
+      document.getElementById('btn-bupati').classList.remove('active');
+
+      if(role === 'warga') {
+        document.getElementById('view-warga').classList.remove('hidden');
+        document.getElementById('btn-warga').classList.add('active');
+      } else if(role === 'rtrw') {
+        document.getElementById('view-rtrw').classList.remove('hidden');
+        document.getElementById('btn-rtrw').classList.add('active');
+      } else if(role === 'kuwu') {
+        document.getElementById('view-kuwu').classList.remove('hidden');
+        document.getElementById('btn-kuwu').classList.add('active');
+      } else if(role === 'bupati') {
+        document.getElementById('view-bupati').classList.remove('hidden');
+        document.getElementById('btn-bupati').classList.add('active');
+      }
+    }
+  </script>
+</body>
+</html>
