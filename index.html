@@ -3,12 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SampahKuota OS - Super App Enterprise Architecture</title>
+  <title>SampahKuota OS - Region & Account Based System</title>
   <!-- 
     ================================================================
-    SYSTEM ARCHITECTURE & CONCEPT CREATOR: HAFID DEVELOPMENT
-    PROJECT: SAMPAHKUOTA OS (SUPER-APP ENTERPRISE VERSION)
-    WATERMARK: (C) 2026 HAFID DEVELOPMENT - ALL RIGHTS RESERVED
+    SYSTEM ARCHITECTURE & CONCEPT CREATOR: AHMAD FAUZI
+    PROJECT: SAMPAHKUOTA OS (USERNAME, PW & REGION AUTH)
     ================================================================
   -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
@@ -51,9 +50,9 @@
     .qr-title { font-size: 11px; font-weight: 800; color: #64748b; margin-bottom: 6px; letter-spacing: 0.5px; display: flex; align-items: center; justify-content: center; gap: 4px; }
     #qrcode { display: flex; justify-content: center; margin: 8px 0; }
 
-    /* MODAL FORM LOGIN GOV */
+    /* MODAL FORM LOGIN REGION */
     .modal-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.75); display: flex; justify-content: center; align-items: center; z-index: 200; }
-    .modal-card { background: white; width: 92%; max-width: 420px; padding: 20px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    .modal-card { background: white; width: 92%; max-width: 420px; padding: 20px; border-radius: 18px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
     .form-group { margin-bottom: 10px; }
     .form-group label { display: block; font-size: 11px; font-weight: 800; color: #475569; margin-bottom: 4px; }
     .form-control { width: 100%; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; font-size: 12px; font-weight: 600; }
@@ -106,13 +105,13 @@
       <!-- STATUS LOGIN -->
       <div class="status-badge">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
-        Status: <span id="txt-status-login" style="color:#4ade80">Terverifikasi (KTP)</span>
+        Status: <span id="txt-status-login" style="color:#4ade80">Logged In</span>
       </div>
 
       <!-- FITUR LOGIN / LOGOUT USER -->
       <button onclick="openModalLogin()" id="btn-user-action" class="btn-login">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M11 7L9.6 8.4l2.6 2.6H2v2h10.2l-2.6 2.6L11 17l5-5-5-5zm9 12h-8v2h8c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2h-8v2h8v14z"/></svg>
-        <span id="txt-btn-login">Ubah Profil / NIK</span>
+        <span id="txt-btn-login">Ganti Akun / Region</span>
       </button>
 
       <!-- SWITCHER ROLE 4 LEVEL -->
@@ -125,25 +124,37 @@
     </div>
   </div>
 
-  <!-- MODAL LOGIN VERIFIKASI DUKCAPIL / NIK -->
+  <!-- MODAL LOGIN USERNAME & REGION (NO NIK) -->
   <div id="modal-login" class="modal-overlay hidden">
     <div class="modal-card">
-      <h3 style="font-size: 14px; color: #0f172a; margin-bottom: 4px;">🏛️ Otentikasi Warga (Satu Data KTP/KK)</h3>
-      <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">Masukkan NIK dan No. KK resmi untuk sinkronisasi data wilayah RT/RW.</p>
+      <h3 style="font-size: 14px; color: #0f172a; margin-bottom: 4px;">👤 Login Akun & Pengaturan Region</h3>
+      <p style="font-size: 10px; color: #64748b; margin-bottom: 12px;">Masukkan kredensial akun dan data lokasi wilayah Anda.</p>
       
       <div class="form-group">
-        <label>NAMA LENGKAP (SESUAI KTP)</label>
-        <input type="text" id="login-nama" class="form-control" placeholder="Contoh: Ahmad Fauzi" value="Ahmad Fauzi">
+        <label>USERNAME</label>
+        <input type="text" id="login-username" class="form-control" placeholder="Contoh: ahmad_fauzi" value="ahmad_fauzi">
       </div>
       <div class="form-group">
-        <label>NOMOR INDUK KEPENDUDUKAN (16 DIGIT NIK)</label>
-        <input type="number" id="login-nik" class="form-control" placeholder="3209..." value="3209121508050001">
+        <label>PASSWORD</label>
+        <input type="password" id="login-password" class="form-control" value="12345678">
+      </div>
+      
+      <hr style="margin: 10px 0; border: none; border-top: 1px dashed #cbd5e1;">
+      <span style="font-size: 10px; font-weight: bold; color: #059669;">WILAYAH / REGION:</span>
+
+      <div class="form-group" style="margin-top:6px;">
+        <label>PROVINSI</label>
+        <input type="text" id="login-provinsi" class="form-control" value="Jawa Barat">
       </div>
       <div class="form-group">
-        <label>NOMOR KARTU KELUARGA (16 DIGIT NO. KK)</label>
-        <input type="number" id="login-kk" class="form-control" placeholder="3209..." value="3209120101100005">
+        <label>KOTA / KABUPATEN</label>
+        <input type="text" id="login-kota" class="form-control" value="Kabupaten Cirebon">
       </div>
-      <div style="display: flex; gap: 6px; margin-top: 10px;">
+      <div class="form-group">
+        <label>DESA / KELURAHAN</label>
+        <input type="text" id="login-kelurahan" class="form-control" value="Megu Gede">
+      </div>
+      <div style="display: flex; gap: 6px;">
         <div class="form-group" style="flex:1;">
           <label>RT</label>
           <input type="text" id="login-rt" class="form-control" value="002">
@@ -153,14 +164,10 @@
           <input type="text" id="login-rw" class="form-control" value="001">
         </div>
       </div>
-      <div class="form-group">
-        <label>DESA / KELURAHAN</label>
-        <input type="text" id="login-desa" class="form-control" value="Desa Megu Gede">
-      </div>
 
       <div style="display: flex; gap: 8px; margin-top: 14px;">
         <button onclick="closeModalLogin()" style="flex:1; padding: 8px; border-radius: 8px; border: 1px solid #cbd5e1; background: white; font-weight: 700; font-size: 11px; cursor: pointer;">Batal</button>
-        <button onclick="prosesLoginDukcapil()" style="flex:2; padding: 8px; border-radius: 8px; border: none; background: #059669; color: white; font-weight: 800; font-size: 11px; cursor: pointer;">Verifikasi Data KTP</button>
+        <button onclick="prosesLoginAccount()" style="flex:2; padding: 8px; border-radius: 8px; border: none; background: #059669; color: white; font-weight: 800; font-size: 11px; cursor: pointer;">Masuk Akun</button>
       </div>
     </div>
   </div>
@@ -174,12 +181,12 @@
             <svg class="icon icon-lg" viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
           </div>
           <div>
-            <h3 id="profile-name" style="font-size: 14px;">Ahmad Fauzi</h3>
-            <p id="profile-alamat" style="font-size: 10px; opacity: 0.9;">RT 002 / RW 001 - Desa Megu Gede</p>
-            <p id="profile-nik" style="font-size: 9px; opacity: 0.85; font-family: monospace;">NIK: 3209121508050001</p>
+            <h3 id="profile-name" style="font-size: 14px;">ahmad_fauzi</h3>
+            <p id="profile-alamat" style="font-size: 10px; opacity: 0.9;">RT 002 / RW 001 - Megu Gede</p>
+            <p id="profile-region" style="font-size: 9px; opacity: 0.85;">Kabupaten Cirebon, Jawa Barat</p>
           </div>
         </div>
-        <span class="badge">Terverifikasi</span>
+        <span class="badge">Warga Aktif</span>
       </div>
 
       <!-- POINT SALDO DIHITUNG REAL-TIME -->
@@ -194,14 +201,14 @@
       </div>
     </div>
 
-    <!-- UTAMA: SCAN QR & TIMBANG SAMPAH REALITA DENGAN PILIHAN JENIS -->
+    <!-- UTAMA: SCAN QR ID DENGAN REGION -->
     <div class="card-white qr-box">
       <div class="qr-title">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M3 3h8v8H3zm2 2v4h4V5zm8-2h8v8h-8zm2 2v4h4V5zM3 13h8v8H3zm2 2v4h4v-4zm13-2h3v2h-3zm-3 2h2v3h-2zm3 3h3v3h-3zm-3 1h2v2h-2z"/></svg>
-        SCAN QR ID INI DI MESIN SAMPAH
+        SCAN QR ID REGION DI MESIN SAMPAH
       </div>
       <div id="qrcode"></div>
-      <span id="txt-qr-id" style="font-size: 10px; color: #94a3b8; font-family: monospace;">ID: NIK-3209121508050001</span>
+      <span id="txt-qr-id" style="font-size: 10px; color: #94a3b8; font-family: monospace;">ID: USER-ahmad_fauzi</span>
       
       <!-- Pilihan Jenis Sampah -->
       <div style="margin-top: 10px; text-align: left;">
@@ -213,14 +220,13 @@
         </select>
       </div>
 
-      <!-- Tombol Simulasi Penimbangan Realita -->
       <button onclick="simulasiScanDanTimbang()" id="btn-scan" class="btn-scan-sim">
         <svg class="icon icon-sm" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
         [Simulasi] Masukkan Sampah & Timbang di Mesin
       </button>
     </div>
 
-    <!-- AREA HIJAU: BARU TERBUKA SETELAH TIMBANG SAMPAH REALITA -->
+    <!-- AREA HIJAU: FORM SUBMIT NOMOR -->
     <div id="card-hijau" class="card-white locked-card">
       <span class="label" style="color: #059669; font-size: 11px; font-weight: bold;">
         Input Provider & Nomor Tujuan (Kirim Admin)
@@ -245,7 +251,6 @@
         Pilih Opsi Penukaran Poin
       </span>
       
-      <!-- Opsi Kuota -->
       <div class="reward-item" style="border: 1px solid #38bdf8;">
         <div style="display: flex; gap: 8px; align-items: center;">
           <div class="reward-icon icon-data-bg">📱</div>
@@ -261,7 +266,6 @@
         <button onclick="tukarKuota()" class="btn-tukar">Proses Kuota</button>
       </div>
 
-      <!-- Opsi Wi-Fi -->
       <div class="reward-item" style="border: 1px solid #38bdf8;">
         <div style="display: flex; gap: 8px; align-items: center;">
           <div class="reward-icon icon-wifi-bg">📶</div>
@@ -276,7 +280,6 @@
         <button onclick="tukarWifi()" class="btn-tukar btn-tukar-blue">Proses Wi-Fi</button>
       </div>
 
-      <!-- Opsi Sedekah / Kas RT (Fitur Baru) -->
       <div class="reward-item" style="border: 1px solid #fcd34d;">
         <div style="display: flex; gap: 8px; align-items: center;">
           <div class="reward-icon icon-sedekah-bg">🕌</div>
@@ -292,7 +295,7 @@
       </div>
     </div>
 
-    <!-- LOG RIWAYAT TRANSAKSI WARGA (Fitur Baru) -->
+    <!-- LOG RIWAYAT TRANSAKSI WARGA -->
     <div class="card-white">
       <h4 style="font-size: 11px; color: #334155; margin-bottom: 6px;">📋 Riwayat Aktivitas Penimbangan Saya</h4>
       <div class="table-responsive">
@@ -313,11 +316,11 @@
     </div>
   </div>
 
-  <!-- ==================== 2. RT/RW VIEW (FITUR BARU) ==================== -->
+  <!-- ==================== 2. RT/RW VIEW ==================== -->
   <div id="view-rtrw" class="container-wide hidden">
     <div class="card-white" style="background: linear-gradient(135deg, #0f766e, #0d9488); color: white;">
       <h2 style="font-size: 18px;">🏡 Dashboard Posko RT 002 / RW 001</h2>
-      <p style="font-size: 11px; opacity: 0.8;">Monitoring Partisipasi Warga & Kas Sedekah Sampah RT</p>
+      <p style="font-size: 11px; opacity: 0.8;">Monitoring Partisipasi Warga Region Megu Gede</p>
     </div>
 
     <div class="grid-4">
@@ -331,7 +334,6 @@
       </div>
     </div>
 
-    <!-- Leaderboard Warga Ter-Rajin -->
     <div class="card-white">
       <h4 style="font-size: 12px; color: #334155;">🏆 Leaderboard Warga Pengumpul Sampah Terbanyak</h4>
       <div class="table-responsive">
@@ -339,8 +341,8 @@
           <thead>
             <tr>
               <th>Peringkat</th>
-              <th>Nama Warga</th>
-              <th>NIK</th>
+              <th>Username</th>
+              <th>Region Alamat</th>
               <th>Total Sampah</th>
               <th>Total Poin</th>
             </tr>
@@ -356,8 +358,8 @@
   <!-- ==================== 3. KUWU VIEW ==================== -->
   <div id="view-kuwu" class="container-wide hidden">
     <div class="card-white" style="background: linear-gradient(135deg, #1e1b4b, #312e81); color: white;">
-      <h2 style="font-size: 18px;">🏛️ Dashboard Operator Kuwu (Tingkat Desa)</h2>
-      <p style="font-size: 11px; opacity: 0.8;">Rekapitulasi Pengajuan Warga Terintegrasi NIK & RT/RW</p>
+      <h2 style="font-size: 18px;">🏛️ Dashboard Operator Kelurahan / Desa</h2>
+      <p style="font-size: 11px; opacity: 0.8;">Rekapitulasi Pengajuan Warga Berdasarkan Region</p>
     </div>
 
     <div class="grid-4">
@@ -390,8 +392,8 @@
             <tr>
               <th>#</th>
               <th>Waktu</th>
-              <th>NIK / KK</th>
-              <th>Nama & Alamat Warga</th>
+              <th>Username Warga</th>
+              <th>Region Lengkap</th>
               <th>No. HP / Provider</th>
               <th>Sampah / Poin</th>
               <th>Paket</th>
@@ -409,8 +411,8 @@
   <!-- ==================== 4. BUPATI VIEW ==================== -->
   <div id="view-bupati" class="container-wide hidden">
     <div class="card-white" style="background: #0f172a; color: white;">
-      <h2 style="font-size: 18px;">👑 Command Center Smart Eco-Kabupaten</h2>
-      <p style="font-size: 11px; color: #94a3b8;">Monitoring Makro Seluruh Pengajuan NIK Warga & Sampah Kabupaten</p>
+      <h2 style="font-size: 18px;">👑 Command Center Regional Kabupaten</h2>
+      <p style="font-size: 11px; color: #94a3b8;">Monitoring Makro Seluruh Region Kota & Kabupaten</p>
     </div>
 
     <div class="grid-4">
@@ -445,13 +447,14 @@
     let isScanned = false;
     let isSubmitted = false;
     
+    // User Profile Region Data (Zero NIK)
     let userProfile = {
-      nama: "Ahmad Fauzi",
-      nik: "3209121508050001",
-      kk: "3209120101100005",
+      username: "ahmad_fauzi",
       rt: "002",
       rw: "001",
-      desa: "Desa Megu Gede"
+      kelurahan: "Megu Gede",
+      kota: "Kabupaten Cirebon",
+      provinsi: "Jawa Barat"
     };
 
     let totalPoin = 0;
@@ -465,7 +468,7 @@
     let riwayatWarga = [];
 
     let qrcodeObj = new QRCode(document.getElementById("qrcode"), {
-      text: "NIK-" + userProfile.nik,
+      text: "USER-" + userProfile.username,
       width: 90,
       height: 90
     });
@@ -473,29 +476,28 @@
     function openModalLogin() { document.getElementById('modal-login').classList.remove('hidden'); }
     function closeModalLogin() { document.getElementById('modal-login').classList.add('hidden'); }
 
-    function prosesLoginDukcapil() {
-      let nama = document.getElementById('login-nama').value;
-      let nik = document.getElementById('login-nik').value;
-      let kk = document.getElementById('login-kk').value;
+    function prosesLoginAccount() {
+      let username = document.getElementById('login-username').value;
       let rt = document.getElementById('login-rt').value;
       let rw = document.getElementById('login-rw').value;
-      let desa = document.getElementById('login-desa').value;
+      let kelurahan = document.getElementById('login-kelurahan').value;
+      let kota = document.getElementById('login-kota').value;
+      let provinsi = document.getElementById('login-provinsi').value;
 
-      if(!nama || !nik || !kk) { alert("Nama Lengkap, NIK, dan No. KK Wajib Diisi!"); return; }
-      if(nik.length !== 16) { alert("Gagal: NIK Harus Berjumlah Tepat 16 Digit Angka!"); return; }
+      if(!username) { alert("Username wajib diisi!"); return; }
 
-      userProfile = { nama, nik, kk, rt, rw, desa };
+      userProfile = { username, rt, rw, kelurahan, kota, provinsi };
 
-      document.getElementById('profile-name').innerText = userProfile.nama;
-      document.getElementById('profile-alamat').innerText = "RT " + userProfile.rt + " / RW " + userProfile.rw + " - " + userProfile.desa;
-      document.getElementById('profile-nik').innerText = "NIK: " + userProfile.nik;
-      document.getElementById('txt-qr-id').innerText = "ID: NIK-" + userProfile.nik;
+      document.getElementById('profile-name').innerText = userProfile.username;
+      document.getElementById('profile-alamat').innerText = "RT " + userProfile.rt + " / RW " + userProfile.rw + " - " + userProfile.kelurahan;
+      document.getElementById('profile-region').innerText = userProfile.kota + ", " + userProfile.provinsi;
+      document.getElementById('txt-qr-id').innerText = "ID: USER-" + userProfile.username;
 
       qrcodeObj.clear();
-      qrcodeObj.makeCode("NIK-" + userProfile.nik);
+      qrcodeObj.makeCode("USER-" + userProfile.username);
 
       closeModalLogin();
-      alert("VERIFIKASI SUCCESS!\nSistem menyinkronkan data NIK warga: " + userProfile.nama);
+      alert("LOGIN SUCCESS!\nSistem memperbarui profil wilayah untuk akun: " + userProfile.username);
     }
 
     function simulasiScanDanTimbang() {
@@ -522,7 +524,6 @@
         totalSampahDesa += berat;
         totalSampahKabupaten += berat;
         
-        // Catat Riwayat Warga
         let timeNow = new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
         riwayatWarga.push({ waktu: timeNow, jenis: jenis, berat: berat + " Kg", poin: "+" + poinBaru });
         renderRiwayatWarga();
@@ -558,10 +559,8 @@
       let itemAntrean = {
         id: Date.now(),
         waktu: timeNow,
-        nik: userProfile.nik,
-        kk: userProfile.kk,
-        warga: userProfile.nama,
-        alamat: "RT " + userProfile.rt + "/RW " + userProfile.rw + " (" + userProfile.desa + ")",
+        username: userProfile.username,
+        region: "RT " + userProfile.rt + "/RW " + userProfile.rw + ", " + userProfile.kelurahan + ", " + userProfile.kota,
         nohp: nohp + " (" + provider + ")",
         sampah: totalSampahWarga + " Kg (" + totalPoin + " PTS)",
         paket: "Belum Memilih Paket",
@@ -571,7 +570,7 @@
       listAntrean.push(itemAntrean);
       renderAntreanKuwu();
 
-      alert("Nomor " + nohp + " disubmit ke Dashboard Kuwu!");
+      alert("Nomor " + nohp + " disubmit ke Dashboard Admin!");
     }
 
     function tukarKuota() {
@@ -618,8 +617,8 @@
       let tbody = document.getElementById('tbody-leaderboard');
       tbody.innerHTML = `<tr>
         <td><b>#1</b></td>
-        <td><b>${userProfile.nama}</b></td>
-        <td>${userProfile.nik}</td>
+        <td><b>${userProfile.username}</b></td>
+        <td>RT ${userProfile.rt}/RW ${userProfile.rw}, ${userProfile.kelurahan}</td>
         <td>${totalSampahWarga} Kg</td>
         <td><span style="color:#059669; font-weight:bold;">${totalPoin} PTS</span></td>
       </tr>`;
@@ -651,8 +650,8 @@
         html += `<tr>
           <td><b>${index + 1}</b></td>
           <td style="color:#64748b;">${item.waktu}</td>
-          <td><span style="font-family:monospace; font-weight:bold; color:#0f172a;">${item.nik}</span></td>
-          <td><b>${item.warga}</b><br><span style="font-size:10px; color:#059669;">${item.alamat}</span></td>
+          <td><b>${item.username}</b></td>
+          <td><span style="font-size:10px; color:#059669;">${item.region}</span></td>
           <td>${item.nohp}</td>
           <td>${item.sampah}</td>
           <td><span style="color:#0284c7; font-weight:bold;">${item.paket}</span></td>
@@ -670,12 +669,10 @@
     function accKuwu(index) {
       listAntrean[index].status = "Selesai";
       renderAntreanKuwu();
-      alert("INJEKSI BERHASIL!\nInjeksi kuota untuk NIK " + listAntrean[index].nik + " diproses.");
+      alert("INJEKSI BERHASIL!\nInjeksi kuota untuk akun " + listAntrean[index].username + " diproses.");
     }
 
-    function cetakLaporanKuwu() {
-      window.print();
-    }
+    function cetakLaporanKuwu() { window.print(); }
 
     function switchRole(role) {
       document.getElementById('view-warga').classList.add('hidden');
